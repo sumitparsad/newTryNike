@@ -1,0 +1,279 @@
+const mongoose = require("mongoose");
+
+const adminSchema = new mongoose.Schema(
+  {
+    adminId: {
+      type: String,
+      required: true,
+      unique: true, // Admin ID should be unique
+    },
+    name: {
+      type: String,
+      required: true, // Full name of the admin is mandatory
+    },
+    email: {
+      type: String,
+      required: true,
+      unique: true, // Email should be unique
+    },
+    password: {
+      type: String,
+      required: true, // Password is mandatory and will be encrypted before saving
+    },
+    role: {
+      type: String,
+      enum: ["SuperAdmin", "Moderator", "Admin"], // Define possible roles for the admin
+      default: "Admin", // Default role
+    },
+  },
+  { timestamps: true } // Automatically creates 'createdAt' and 'updatedAt' fields
+);
+
+module.exports = mongoose.model("Admin", adminSchema);
+const mongoose = require("mongoose");
+
+const cartSchema = new mongoose.Schema(
+  {
+    userId: {
+      type: mongoose.Schema.Types.ObjectId, // Reference to the User model
+      required: true,
+      ref: "User", // References the User model
+      unique: true, // Ensure only one cart per user
+    },
+    products: [
+      {
+        productId: {
+          type: mongoose.Schema.Types.ObjectId, // Reference to the Product model
+          required: true,
+          ref: "Product", // References the Product model
+        },
+        quantity: {
+          type: Number,
+          required: true, // Quantity of the product in the cart
+          min: 1, // Ensure the quantity is at least 1
+        },
+        price: {
+          type: Number,
+          required: true, // Price of the product at the time it's added to the cart
+        },
+      },
+    ],
+    totalPrice: {
+      type: Number, // This will store the total price of all the items in the cart
+      default: 0, // Set a default value of 0
+    },
+  },
+  { timestamps: true } // Automatically adds 'createdAt' and 'updatedAt' fields
+);
+
+module.exports = mongoose.model("Cart", cartSchema);
+const mongoose = require("mongoose");
+
+const categorySchema = new mongoose.Schema(
+  {
+    categoryId: {
+      type: mongoose.Schema.Types.ObjectId,
+      required: true,
+      unique: true, // Unique identifier for each category
+    },
+    name: {
+      type: String,
+      required: true, // Category name is mandatory
+    },
+  },
+  { timestamps: true } // Automatically adds 'createdAt' and 'updatedAt' fields
+);
+
+module.exports = mongoose.model("Category", categorySchema);
+const mongoose = require("mongoose");
+
+const orderSchema = new mongoose.Schema(
+  {
+    orderId: {
+      type: String,
+      required: true,
+      unique: true, // Unique identifier for the order
+    },
+    userId: {
+      type: mongoose.Schema.Types.ObjectId, // Reference to the User model
+      required: true,
+      ref: "User", // References the User model
+    },
+    products: [
+      {
+        productId: {
+          type: mongoose.Schema.Types.ObjectId, // Reference to the Product model
+          required: true,
+          ref: "Product", // References the Product model
+        },
+        quantity: {
+          type: Number,
+          required: true, // Quantity of the product in the order
+          min: 1, // Ensure the quantity is at least 1
+        },
+        price: {
+          type: Number,
+          required: true, // Price of the product at the time the order was placed
+        },
+      },
+    ],
+    totalAmount: {
+      type: Number,
+      required: true, // Total price of the order
+    },
+    status: {
+      type: String,
+      enum: ["Pending", "Shipped", "Delivered"], // Possible order statuses
+      default: "Pending", // Default status
+    },
+  },
+  { timestamps: true } // Automatically adds 'createdAt' and 'updatedAt' fields
+);
+
+module.exports = mongoose.model("Order", orderSchema);
+const mongoose = require("mongoose");
+
+const productSchema = new mongoose.Schema(
+  {
+    productId: {
+      type: String,
+      required: true,
+      unique: true, // Unique identifier for each product
+    },
+    name: {
+      type: String,
+      required: true, // Product name is mandatory
+    },
+    description: {
+      type: String,
+      required: true, // Detailed description of the product
+    },
+    price: {
+      type: Number, // Using Number for price
+      required: true, // Price of the product
+    },
+    image: {
+      type: String,
+      required: true, // URL or path to the product image
+    },
+    categoryId: {
+      type: mongoose.Schema.Types.ObjectId, // Use ObjectId for referencing
+      required: true, // Reference to the parent category
+      ref: "Category", // References the Category model
+    },
+    subcategoryId: {
+      type: mongoose.Schema.Types.ObjectId, // Reference to the Subcategory model (optional)
+      ref: "Subcategory",
+    },
+    stock: {
+      type: Number,
+      default: 0, // Default to 0 if no stock is specified
+    },
+  },
+  { timestamps: true } // Automatically adds 'createdAt' and 'updatedAt' fields
+);
+
+module.exports = mongoose.model("Product", productSchema);
+const mongoose = require("mongoose");
+
+const subcategorySchema = new mongoose.Schema(
+  {
+    subcategoryId: {
+      type: mongoose.Schema.Types.ObjectId,
+      required: true,
+      unique: true, // Unique identifier for each subcategory
+    },
+    name: {
+      type: String,
+      required: true, // Subcategory name is mandatory
+    },
+    categoryId: {
+      type: String,
+      required: true, // Reference to the parent category
+      ref: "Category", // References the Category model
+    },
+  },
+  { timestamps: true } // Automatically adds 'createdAt' and 'updatedAt' fields
+);
+
+module.exports = mongoose.model("Subcategory", subcategorySchema);
+const mongoose = require("mongoose");
+
+const userSchema = new mongoose.Schema(
+  {
+    userId: {
+      type: String,
+      unique: true,
+      required: true,
+    },
+    name: {
+      type: String,
+      required: true,
+    },
+    email: {
+      type: String,
+      required: true,
+      unique: true,
+    },
+    password: {
+      type: String,
+      required: true,
+    },
+    address: {
+      type: String,
+      required: false,
+    },
+    telephone: {
+      type: String,
+      required: false,
+    },
+    gender: {
+      type: String,
+      enum: ["Male", "Female", "Other"],
+      required: false,
+    },
+    wishlist: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Wishlist",
+    },
+    cart: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Cart",
+    },
+    orders: [
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Order",
+      },
+    ],
+  },
+  { timestamps: true } // Automatically adds `createdAt` and `updatedAt`
+);
+
+module.exports = mongoose.model("User", userSchema);
+const mongoose = require("mongoose");
+
+const wishlistSchema = new mongoose.Schema(
+  {
+    wishlistId: {
+      type: mongoose.Schema.Types.ObjectId, // Using ObjectId as unique identifier
+      default: mongoose.Types.ObjectId, // Automatically generates a new ObjectId if not provided
+      required: true,
+      unique: true, // Unique identifier for the wishlist
+    },
+    userId: {
+      type: mongoose.Schema.Types.ObjectId, // Reference to the User model
+      required: true,
+      ref: "User", // References the User model
+    },
+    products: [
+      {
+        type: mongoose.Schema.Types.ObjectId, // Reference to the Product model
+        ref: "Product", // References the Product model
+      },
+    ],
+  },
+  { timestamps: true } // Automatically adds 'createdAt' and 'updatedAt' fields
+);
+
+module.exports = mongoose.model("Wishlist", wishlistSchema);
